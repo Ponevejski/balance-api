@@ -1,1 +1,2 @@
-web: ls -l && npm run build && ls -l dist && npm run start:prod
+web: npm run start:prod
+worker: npm run start
