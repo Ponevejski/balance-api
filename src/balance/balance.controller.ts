@@ -9,10 +9,13 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
+
 import { BalanceEntity } from './balance.entity';
 import { BalanceService } from './balance.service';
+import { BalanceQueriesInterface } from './types/balanceQueries.interface';
 
 @Controller('balance')
 export class BalanceController {
@@ -20,8 +23,11 @@ export class BalanceController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async getBalance(@User('id') currentUserId: number) {
-    return await this.balanceService.getBalance(currentUserId);
+  async getBalance(
+    @User('id') currentUserId: number,
+    @Query() query: BalanceQueriesInterface,
+  ) {
+    return await this.balanceService.getBalance(currentUserId, query);
   }
 
   @Get('total')
