@@ -1,8 +1,9 @@
 import { CategoriesService } from '@app/categories/categories.service';
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { BalanceEntity } from './balance.entity';
+import { BalanceQueriesInterface } from './types/balanceQueries.interface';
 
 @Injectable()
 export class BalanceService {
@@ -10,14 +11,40 @@ export class BalanceService {
     @InjectRepository(BalanceEntity)
     private readonly balanceRepository: Repository<BalanceEntity>,
     private categoriesService: CategoriesService,
+    private dataSource: DataSource,
   ) {}
 
-  async getBalance(currentUserId): Promise<BalanceEntity[]> {
-    const data = await this.balanceRepository.find({
-      where: { author: { id: currentUserId } },
-    });
+  async getBalance(
+    currentUserId,
+    query: BalanceQueriesInterface,
+  ): Promise<BalanceEntity[]> {
+    const queryBuilder = this.dataSource
+      .getRepository(BalanceEntity)
+      .createQueryBuilder('balance')
+      .leftJoinAndSelect('balance.author', 'author')
+      .leftJoinAndSelect('balance.category', 'category') // Добавляем связь с категорией
+      .where('balance.author.id = :currentUserId', { currentUserId }) // Фильтруем по автору
+      .orderBy('balance.createdAt', 'DESC');
 
-    return data.sort((a, b) => b.id - a.id);
+    if (query.category) {
+      // Используем точное сравнение вместо LIKE, так как у нас есть точное имя категории
+      queryBuilder.andWhere('category.name = :categoryName', {
+        categoryName: query.category,
+      });
+    }
+
+    if (query.startDate && query.endDate) {
+      queryBuilder.andWhere(
+        'balance.createdAt BETWEEN :startDate AND :endDate',
+        {
+          startDate: query.startDate,
+          endDate: query.endDate,
+        },
+      );
+    }
+
+    // Возвращаем результат выполнения запроса
+    return queryBuilder.getMany();
   }
 
   async getTotalBalance(currentUserId): Promise<{ total: number }> {

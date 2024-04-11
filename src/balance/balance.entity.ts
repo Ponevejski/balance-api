@@ -16,7 +16,7 @@ export class BalanceEntity {
   description: string;
 
   @Column({ default: defaultDate })
-  data: Date;
+  createdAt: Date;
 
   @Column()
   categoryId: number;
