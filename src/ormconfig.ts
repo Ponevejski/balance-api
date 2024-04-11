@@ -20,7 +20,7 @@ const config: PostgresConnectionOptions = {
   password: 'pc5041673d004e94a8efbbd8a85ca534bca77b21e67a8a8c1cd7675a4f65b6e1f',
   database: 'ddf3cqb84qiae3',
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-  synchronize: false,
+  synchronize: true,
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
 };
 
