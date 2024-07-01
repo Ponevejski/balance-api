@@ -1,8 +1,12 @@
 import { CategoriesEntity } from '@app/categories/categories.entity';
 import { UserEntity } from '@app/user/user.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-
-const defaultDate = new Date(Date.now()).toLocaleString().split(',')[0];
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity({ name: 'balance' })
 export class BalanceEntity {
@@ -15,7 +19,7 @@ export class BalanceEntity {
   @Column()
   description: string;
 
-  @Column({ default: defaultDate })
+  @CreateDateColumn()
   createdAt: Date;
 
   @Column()
