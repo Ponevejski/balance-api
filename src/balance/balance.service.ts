@@ -47,14 +47,38 @@ export class BalanceService {
     return queryBuilder.getMany();
   }
 
-  async getTotalBalance(currentUserId): Promise<{ total: number }> {
-    const balance = await this.balanceRepository.find({
-      where: { author: { id: currentUserId } },
-    });
+  async getTotalBalance(
+    currentUserId,
+    query: BalanceQueriesInterface,
+  ): Promise<{ total: number }> {
+    const queryBuilder = this.dataSource
+      .getRepository(BalanceEntity)
+      .createQueryBuilder('balance')
+      .leftJoinAndSelect('balance.author', 'author')
+      .leftJoinAndSelect('balance.category', 'category')
+      .where('balance.author.id = :currentUserId', { currentUserId })
+      .select('SUM(balance.amount) AS total');
 
-    const total = balance.reduce((a, b) => a + b.amount, 0);
+    if (query.category) {
+      queryBuilder.andWhere('category.name = :categoryName', {
+        categoryName: query.category,
+      });
+    }
 
-    return { total };
+    if (query.startDate && query.endDate) {
+      const endDate = new Date(query.endDate);
+      endDate.setDate(endDate.getDate() + 1); // Add one day to the end date
+
+      queryBuilder.andWhere('balance.createdAt >= :startDate', {
+        startDate: query.startDate,
+      });
+      queryBuilder.andWhere('balance.createdAt < :endDate', {
+        endDate: endDate.toISOString(),
+      });
+    }
+
+    const result = await queryBuilder.getRawOne();
+    return { total: result.total || 0 };
   }
 
   async setBalance(

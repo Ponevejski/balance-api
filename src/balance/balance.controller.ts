@@ -32,8 +32,11 @@ export class BalanceController {
 
   @Get('total')
   @UseGuards(AuthGuard)
-  async getTotalBalance(@User('id') currentUserId: number) {
-    return await this.balanceService.getTotalBalance(currentUserId);
+  async getTotalBalance(
+    @User('id') currentUserId: number,
+    @Query() query: BalanceQueriesInterface,
+  ) {
+    return await this.balanceService.getTotalBalance(currentUserId, query);
   }
 
   @Post()
