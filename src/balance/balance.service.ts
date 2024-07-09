@@ -22,28 +22,28 @@ export class BalanceService {
       .getRepository(BalanceEntity)
       .createQueryBuilder('balance')
       .leftJoinAndSelect('balance.author', 'author')
-      .leftJoinAndSelect('balance.category', 'category') // Добавляем связь с категорией
-      .where('balance.author.id = :currentUserId', { currentUserId }) // Фильтруем по автору
+      .leftJoinAndSelect('balance.category', 'category')
+      .where('balance.author.id = :currentUserId', { currentUserId })
       .orderBy('balance.createdAt', 'DESC');
 
     if (query.category) {
-      // Используем точное сравнение вместо LIKE, так как у нас есть точное имя категории
       queryBuilder.andWhere('category.name = :categoryName', {
         categoryName: query.category,
       });
     }
 
     if (query.startDate && query.endDate) {
-      queryBuilder.andWhere(
-        'balance.createdAt BETWEEN :startDate AND :endDate',
-        {
-          startDate: query.startDate,
-          endDate: query.endDate,
-        },
-      );
+      const endDate = new Date(query.endDate);
+      endDate.setDate(endDate.getDate() + 1); // Add one day to the end date
+
+      queryBuilder.andWhere('balance.createdAt >= :startDate', {
+        startDate: query.startDate,
+      });
+      queryBuilder.andWhere('balance.createdAt < :endDate', {
+        endDate: endDate.toISOString(),
+      });
     }
 
-    // Возвращаем результат выполнения запроса
     return queryBuilder.getMany();
   }
 
