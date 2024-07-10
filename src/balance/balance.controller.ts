@@ -50,7 +50,7 @@ export class BalanceController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  async deleteBalance(@Param('id') id): Promise<string> {
+  async deleteBalance(@Param('id') id: number): Promise<string> {
     return await this.balanceService.deleteBalance(id);
   }
 
