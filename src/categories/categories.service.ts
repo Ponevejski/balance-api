@@ -25,4 +25,14 @@ export class CategoriesService {
   async findOneById(id: number): Promise<CategoriesEntity | null> {
     return await this.categoriesRepository.findOne({ where: { id } });
   }
+
+  async deleteCategory(id: number): Promise<CategoriesEntity> {
+    const category = await this.findOneById(id);
+
+    if (!category) {
+      throw new Error('Category not found');
+    }
+
+    return await this.categoriesRepository.remove(category);
+  }
 }
