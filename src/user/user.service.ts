@@ -103,4 +103,10 @@ export class UserService {
 
     return await this.userRepository.save(user);
   }
+
+  async uploadUserImage(userId: number, image: string): Promise<UserEntity> {
+    const user = await this.findById(userId);
+    user.image = image;
+    return await this.userRepository.save(user);
+  }
 }

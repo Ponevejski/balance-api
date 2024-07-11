@@ -58,4 +58,13 @@ export class UserController {
     );
     return this.userService.buildUserResponse(user);
   }
+
+  @Put('user/image')
+  @UseGuards(AuthGuard)
+  async uploadUserImage(
+    @User('id') currentUserId: number,
+    @Body('image') image: string,
+  ): Promise<UserEntity> {
+    return await this.userService.uploadUserImage(currentUserId, image);
+  }
 }
