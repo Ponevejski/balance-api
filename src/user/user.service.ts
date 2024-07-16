@@ -1,6 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare } from 'bcrypt';
+
+import storage from '@app/gcloudconfig';
 import { sign } from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
@@ -104,9 +106,28 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async uploadUserImage(userId: number, image: string): Promise<UserEntity> {
+  async uploadUserImage(
+    userId: number,
+    image: Express.Multer.File,
+  ): Promise<UserEntity> {
     const user = await this.findById(userId);
-    user.image = image;
+    const fileName = `images/${image.originalname}`;
+    const bucket = storage.bucket('balance-api');
+    const file = bucket.file(fileName);
+
+    await file.save(image.buffer, {
+      metadata: {
+        contentType: image.mimetype,
+      },
+    });
+
+    const [url] = await file.getSignedUrl({
+      action: 'read',
+      expires: Date.now() + 3600 * 1000, // 1 hour
+    });
+
+    user.image = url;
+
     return await this.userRepository.save(user);
   }
 }

@@ -4,11 +4,14 @@ import {
   Get,
   Post,
   Put,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 
+import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from './decorators/user.decorator';
 import { CreateUserDto } from './dto/createUser.dto';
 import { LoginUserDto } from './dto/loginUser';
@@ -61,9 +64,10 @@ export class UserController {
 
   @Put('user/image')
   @UseGuards(AuthGuard)
-  async uploadUserImage(
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadImage(
     @User('id') currentUserId: number,
-    @Body('image') image: string,
+    @UploadedFile() image: Express.Multer.File,
   ): Promise<UserEntity> {
     return await this.userService.uploadUserImage(currentUserId, image);
   }
