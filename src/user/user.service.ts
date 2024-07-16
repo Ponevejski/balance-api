@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare } from 'bcrypt';
 
-import storage from '@app/gcloudconfig';
+import { Storage } from '@google-cloud/storage';
 import { sign } from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
@@ -16,6 +16,7 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>, // create local variable
+    private readonly storage: Storage,
   ) {}
   async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
     const userByEmail = await this.userRepository.findOne({
@@ -112,7 +113,7 @@ export class UserService {
   ): Promise<UserEntity> {
     const user = await this.findById(userId);
     const fileName = `images/${image.originalname}`;
-    const bucket = storage.bucket('balance-api');
+    const bucket = this.storage.bucket('balance-api');
     const file = bucket.file(fileName);
 
     await file.save(image.buffer, {
@@ -126,7 +127,7 @@ export class UserService {
       expires: Date.now() + 3600 * 1000, // 1 hour
     });
 
-    user.image = url;
+    Object.assign(user, { image: url });
 
     return await this.userRepository.save(user);
   }

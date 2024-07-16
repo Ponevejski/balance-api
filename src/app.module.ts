@@ -7,6 +7,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BalanceModule } from './balance/balance.module';
 import { CategoriesModule } from './categories/categories.module';
+
+import { GCloudModule } from './gcloud/gcloud.module';
 import { AuthMiddleware } from './user/middlewares/auth.middlewares';
 import { UserModule } from './user/user.module';
 @Module({
@@ -20,6 +22,7 @@ import { UserModule } from './user/user.module';
         fileSize: 1000000, // 1MB
       },
     }),
+    GCloudModule,
     TypeOrmModule.forRoot(ormconfig),
     BalanceModule,
     UserModule,
