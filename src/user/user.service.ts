@@ -122,10 +122,7 @@ export class UserService {
       },
     });
 
-    const [url] = await file.getSignedUrl({
-      action: 'read',
-      expires: 0, // Infinity
-    });
+    const url = file.publicUrl();
 
     Object.assign(user, { image: url });
 
