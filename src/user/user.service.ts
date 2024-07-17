@@ -124,7 +124,7 @@ export class UserService {
 
     const [url] = await file.getSignedUrl({
       action: 'read',
-      expires: Date.now() + 3600 * 1000, // 1 hour
+      expires: 0, // Infinity
     });
 
     Object.assign(user, { image: url });
