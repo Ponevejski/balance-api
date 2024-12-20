@@ -1,4 +1,3 @@
-// src/storage/storage.module.ts
 import { Storage } from '@google-cloud/storage';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

@@ -1,6 +1,5 @@
-import ormconfig from '@app/ormconfig';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -11,10 +10,19 @@ import { CategoriesModule } from './categories/categories.module';
 import { GCloudModule } from './gcloud/gcloud.module';
 import { AuthMiddleware } from './user/middlewares/auth.middlewares';
 import { UserModule } from './user/user.module';
+
+import { databaseConfig } from './config/databaseConfig';
+import ormconfig from './ormconfig';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // global .env file
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: (configService: ConfigService) =>
+        databaseConfig(configService),
+      inject: [ConfigService],
     }),
     MulterModule.register({
       dest: './uploads',

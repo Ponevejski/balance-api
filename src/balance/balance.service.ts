@@ -131,4 +131,8 @@ export class BalanceService {
 
     return await this.balanceRepository.save(currentBalance);
   }
+
+  async findOneById(id: number): Promise<BalanceEntity | null> {
+    return await this.balanceRepository.findOne({ where: { id } });
+  }
 }

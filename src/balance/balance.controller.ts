@@ -16,6 +16,7 @@ import {
 import { BalanceEntity } from './balance.entity';
 import { BalanceService } from './balance.service';
 import { BalanceQueriesInterface } from './types/balanceQueries.interface';
+import { PostOwnerGuard } from '@app/user/guards/owner.guard';
 
 @Controller('balance')
 export class BalanceController {
@@ -55,11 +56,17 @@ export class BalanceController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, PostOwnerGuard)
   async updateBalance(
     @Param('id') id: number,
     @Body() balance: BalanceEntity,
   ): Promise<BalanceEntity> {
     return await this.balanceService.updateBalance(id, balance);
+  }
+
+  @Get(':id')
+  @UseGuards(AuthGuard)
+  async getBalanceById(@Param('id') id: number) {
+    return await this.balanceService.findOneById(id);
   }
 }
